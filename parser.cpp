@@ -50,7 +50,7 @@ void NodeMap::load(const std::string& filename, bool verbose) {
       node->name = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
       node->isOutput = false;
       verbose && std::cout << "Name: " << node->name << std::endl;
-      this->addNode(node->name, node);
+      this->addNode(node);
     }
     else if (line.rfind("OUTPUT", 0) == 0) {
       verbose && std::cout << "Type: OUTPUT" << std::endl;
@@ -59,7 +59,7 @@ void NodeMap::load(const std::string& filename, bool verbose) {
       node->name = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
       node->isOutput = true;
       verbose && std::cout << "Name: " << node->name << std::endl;
-      this->addNode(node->name, node);
+      this->addNode(node);
     }
     else if (line.find('=') != std::string::npos) {
       bool isNewNode = false;
@@ -83,7 +83,7 @@ void NodeMap::load(const std::string& filename, bool verbose) {
       }
       foreach_gate_type
       #undef _
-      if (isNewNode) this->addNode(node->name, node);
+      if (isNewNode) this->addNode(node);
       std::stringstream ss(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1));
       while (ss.good()) {
         std::string input;

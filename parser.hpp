@@ -75,11 +75,10 @@ class NodeMap {
   /**
    * @brief Add a node to the map
    * 
-   * @param name Name of the node
    * @param node Pointer to `Node` object
    */
-  inline void addNode(const std::string& name, Node* node) {
-    map[name] = node;
+  inline void addNode(Node* node) {
+    map[node->name] = node;
     switch (node->type) {
       case GateType::INPUT:
         inputs.push_back(node);
