@@ -43,18 +43,21 @@ typedef struct _Node {
   GateType type;
   // Is output node
   bool isOutput;
+  // Is lock node
+  bool isLock;
   // Input nodes of the node if any
   std::vector<struct _Node*> inputs;
 } Node;
 
 class NodeMap {
   std::unordered_map<std::string, Node*> map;
+  public:
   std::vector<Node*> inputs;
   std::vector<Node*> outputs;
   std::vector<Node*> outGates;
   std::vector<Node*> gates;
+  std::vector<Node*> lockGates;
 
-  public:
   NodeMap() { }
   ~NodeMap() {
     for (auto it = map.begin(); it!= map.end(); ++it) {
@@ -87,12 +90,23 @@ class NodeMap {
         outputs.push_back(node);
         outGates.push_back(node);
         break;
-      #define _(x, y, z, w) case GateType::y: gates.push_back(node); break;
+      #define _(x, y, z, w) \
+      case GateType::y: \
+      if (node->isLock) lockGates.push_back(node); \
+      else gates.push_back(node); \
+      break;
       foreach_gate_type_no_in_out
       #undef _
       default: break;
     }
   }
+  /**
+   * @brief Lock a node. This adds a lock node into the circuit
+   * 
+   * @param node Node to be locked
+   * @param key Key bit
+   */
+  void lockNode(Node* node, bool key);
   /**
    * @brief Load node data from a file
    * 

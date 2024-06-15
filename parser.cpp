@@ -29,6 +29,31 @@ inline void trim(std::string &s) {
 
 namespace core {
 
+void NodeMap::lockNode(Node* node, bool key) {
+  if (node->isLock)
+    throw std::runtime_error("Cannot lock a lock node");
+  // create key input node
+  Node* keyInput = new Node();
+  keyInput->type = GateType::INPUT;
+  keyInput->name = std::string("keyinput") + std::to_string(this->lockGates.size());
+  keyInput->isOutput = false;
+  keyInput->isLock = false;
+  this->addNode(keyInput);
+  // create lock node
+  Node* lock = new Node();
+  lock->type = key ? GateType::XNOR : GateType::XOR;
+  lock->name = node->name + "$enc";
+  lock->isOutput = false;
+  lock->isLock = true;
+  lock->inputs.push_back(keyInput);
+  lock->inputs.push_back(node);
+  this->addNode(lock);
+  // replace the original node with the lock node
+  for (auto&& gate: this->gates) {
+    std::replace_if(gate->inputs.begin(), gate->inputs.end(), [&node](Node* n){ return n == node; }, lock);
+  }
+}
+
 void NodeMap::load(const std::string& filename, bool verbose) {
   std::cout << "Loading " << filename << std::endl;
   std::ifstream file(filename);
@@ -152,10 +177,25 @@ void NodeMap::save(const std::string& filename, bool verbose) {
         break;
     }
   }
+  file << std::endl;
+  for (const auto& node: this->lockGates) {
+    std::string logicInputs;
+    for (const auto& input: node->inputs) logicInputs += input->name + ", ";
+    // remove trailing comma
+    logicInputs.pop_back(); logicInputs.pop_back();
+    switch (node->type) {
+      #define _(x, y, z, w) case GateType::y: file << node->name << " = " << z << "(" << logicInputs << ")" << std::endl; break;
+      foreach_gate_type_no_in_out
+      #undef _
+      default:
+        file << node->name << " = UNKNOWN(" << logicInputs << ")" << std::endl;
+        break;
+    }
+  }
   file.close();
   std::cout << "Done. Saved " << this->inputs.size() << " inputs, "
             << this->outputs.size() << " outputs, and "
-            << this->gates.size() << " intermediate gates." << std::endl;
+            << this->gates.size() + this->lockGates.size() << " intermediate gates." << std::endl;
 }
 
 void NodeMap::show() {
@@ -172,6 +212,9 @@ void NodeMap::show() {
     }
     if (entry.second->isOutput) {
       std::cout << "Output" << std::endl;
+    }
+    if (entry.second->isLock) {
+      std::cout << "Lock" << std::endl;
     }
     if (entry.second->type != GateType::INPUT) {
       std::cout << "Inputs: ";
