@@ -40,14 +40,13 @@ void NodeMap::lock_node(Node* node, bool key) {
   /**
    * create the lock gate
    * 
-   * first we randomly decide if we invert the key input
-   * if we do, we invert the lock gate, otherwise we leave it as is
-   * for locking input nodes, we add an additional NOT gate to invert the key
+   * first we randomly choose between XOR and XNOR
+   * if the key is 0 and the lock gate is XNOR, we invert the lock gate
+   * if the key is 1 and the lock gate is XOR, we invert the lock gate
+   * otherwise, we leave the lock gate as is
    */
-  bool invert = std::rand() % 2;
-  Node* lock = 0;
-  if (invert) lock = new Node(node->name + "$enc", key ? GateType::XNOR : GateType::XOR);
-  else lock = new Node(node->name + "$enc", key ? GateType::XOR : GateType::XNOR);
+  Node* lock = new Node(node->name + "$enc", std::rand() % 2 == 0 ? GateType::XOR : GateType::XNOR);
+  bool invert = (key == 0 && lock->type == GateType::XNOR) || (key == 1 && lock->type == GateType::XOR);
   lock->is_lock = true;
   this->add_node(lock);
   if (node->type == GateType::INPUT) {
