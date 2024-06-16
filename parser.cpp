@@ -135,6 +135,7 @@ void NodeMap::load(const std::string& filename, bool verbose) {
         if (inputNode != nullptr) {
           verbose && std::cout << "Input: " << input << std::endl;
           node->inputs.push_back(inputNode);
+          inputNode->outputs.push_back(node);
         }
         else {
           std::cerr << "Encountered unknown input: " << input << std::endl;
@@ -239,6 +240,10 @@ void NodeMap::show() {
         std::cout << input->name << " ";
       }
       std::cout << std::endl;
+    }
+    std::cout << "Outputs: ";
+    for (const auto& output: entry.second->outputs) {
+      std::cout << output->name << " ";
     }
     std::cout << std::endl;
   }

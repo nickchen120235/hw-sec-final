@@ -48,6 +48,8 @@ class Node {
   bool is_lock;
   // Input nodes of the node if any
   std::vector<Node*> inputs;
+  // Output nodes of the node if any
+  std::vector<Node*> outputs;
 
   Node() { }
 
