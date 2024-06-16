@@ -3,10 +3,10 @@
 CXXFLAGS=--std=c++11 -Wall -Wextra
 
 main: parser.o main.cpp
-	g++ -o $@ $^
+	g++ $(CXXFLAGS) -o $@ $^ 
 
 parser.o: parser.cpp
-	g++ -c $<
+	g++ $(CXXFLAGS) -c $<
 
 clean:
 	rm -rf main *.o
