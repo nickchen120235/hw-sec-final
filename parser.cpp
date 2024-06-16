@@ -92,18 +92,14 @@ void NodeMap::load(const std::string& filename, bool verbose) {
 
     if (line.rfind("INPUT", 0) == 0) {
       verbose && std::cout << "Type: INPUT" << std::endl;
-      Node* node = new Node();
-      node->type = GateType::INPUT;
-      node->name = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
+      Node* node = new Node(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1), GateType::INPUT);
       node->is_output = false;
       verbose && std::cout << "Name: " << node->name << std::endl;
       this->add_node(node);
     }
     else if (line.rfind("OUTPUT", 0) == 0) {
       verbose && std::cout << "Type: OUTPUT" << std::endl;
-      Node* node = new Node();
-      node->type = GateType::OUTPUT;
-      node->name = line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1);
+      Node* node = new Node(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1), GateType::OUTPUT);
       node->is_output = true;
       verbose && std::cout << "Name: " << node->name << std::endl;
       this->add_node(node);
