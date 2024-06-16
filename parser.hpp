@@ -36,7 +36,8 @@ typedef enum _GateType {
 } GateType;
 
 // Basic node structure
-typedef struct _Node {
+class Node {
+  public:
   // Name of the node
   std::string name;
   // Type of the node
@@ -46,8 +47,49 @@ typedef struct _Node {
   // Is lock node
   bool is_lock;
   // Input nodes of the node if any
-  std::vector<struct _Node*> inputs;
-} Node;
+  std::vector<Node*> inputs;
+
+  Node() { }
+
+  Node(const std::string& name, GateType type) {
+    this->name = name;
+    this->type = type;
+    this->is_output = false;
+    this->is_lock = false;
+    this->inputs.clear();
+  }
+
+  void invert() {
+    switch (this->type) {
+      case GateType::NOT:
+        this->type = GateType::BUF;
+        break;
+      case GateType::BUF:
+        this->type = GateType::NOT;
+        break;
+      case GateType::AND:
+        this->type = GateType::NAND;
+        break;
+      case GateType::NAND:
+        this->type = GateType::AND;
+        break;
+      case GateType::OR:
+        this->type = GateType::NOR;
+        break;
+      case GateType::NOR:
+        this->type = GateType::OR;
+        break;
+      case GateType::XOR:
+        this->type = GateType::XNOR;
+        break;
+      case GateType::XNOR:
+        this->type = GateType::XOR;
+        break;
+      default:
+        break;
+    }
+  }
+};
 
 class NodeMap {
   std::unordered_map<std::string, Node*> map;

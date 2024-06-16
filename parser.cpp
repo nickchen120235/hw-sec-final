@@ -33,23 +33,45 @@ void NodeMap::lock_node(Node* node, bool key) {
   if (node->is_lock)
     throw std::runtime_error("Cannot lock a lock node");
   // create key input node
-  Node* keyInput = new Node();
-  keyInput->type = GateType::INPUT;
-  keyInput->name = std::string("keyinput") + std::to_string(this->lock_gates.size());
+  Node* keyInput = new Node(std::string("keyinput") + std::to_string(this->lock_gates.size()), GateType::INPUT);
   keyInput->is_output = false;
   keyInput->is_lock = false;
   this->add_node(keyInput);
-  // create lock node
-  Node* lock = new Node();
-  lock->type = key ? GateType::XNOR : GateType::XOR;
-  lock->name = node->name + "$enc";
-  lock->is_output = false;
+  /**
+   * create the lock gate
+   * 
+   * first we randomly decide if we invert the key input
+   * if we do, we invert the lock gate, otherwise we leave it as is
+   * for locking input nodes, we add an additional NOT gate to invert the key
+   */
+  bool invert = std::rand() % 2;
+  Node* lock = 0;
+  if (invert) lock = new Node(node->name + "$enc", key ? GateType::XNOR : GateType::XOR);
+  else lock = new Node(node->name + "$enc", key ? GateType::XOR : GateType::XNOR);
   lock->is_lock = true;
-  lock->inputs.push_back(keyInput);
-  lock->inputs.push_back(node);
   this->add_node(lock);
+  if (node->type == GateType::INPUT) {
+    if (invert) {
+      Node* inv = new Node(node->name + "$inv", GateType::NOT);
+      this->add_node(inv);
+      inv->is_lock = true;
+      inv->inputs.push_back(node);
+      lock->inputs.push_back(keyInput);
+      lock->inputs.push_back(inv);
+    }
+    else {
+      lock->inputs.push_back(node);
+      lock->inputs.push_back(keyInput);
+    }
+  }
+  else {
+    lock->inputs.push_back(node);
+    lock->inputs.push_back(keyInput);
+    if (invert) node->invert();
+  }
   // replace the original node with the lock node
   for (auto&& gate: this->gates) {
+    if (gate->is_lock) continue;
     std::replace_if(gate->inputs.begin(), gate->inputs.end(), [&node](Node* n){ return n == node; }, lock);
   }
 }
