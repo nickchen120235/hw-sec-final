@@ -18,11 +18,11 @@ void _lock(core::NodeMap& map, std::vector<core::Node*>& choice, std::size_t key
   std::generate(key.begin(), key.end(), []() { return std::rand() % 2; });
   std::cout << "Key: ";
   for (const auto& bit : key) {
-    std::cout << bit ? "1" : "0";
+    std::cout << (bit ? "1" : "0");
   }
   std::cout << std::endl;
   // lock nodes
-  for (int i = 0; i < key.size(); ++i) {
+  for (std::size_t i = 0; i < key.size(); ++i) {
     map.lock_node(choice[i], key[i]);
   }
 }
