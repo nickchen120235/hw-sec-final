@@ -42,9 +42,9 @@ typedef struct _Node {
   // Type of the node
   GateType type;
   // Is output node
-  bool isOutput;
+  bool is_output;
   // Is lock node
-  bool isLock;
+  bool is_lock;
   // Input nodes of the node if any
   std::vector<struct _Node*> inputs;
 } Node;
@@ -54,9 +54,9 @@ class NodeMap {
   public:
   std::vector<Node*> inputs;
   std::vector<Node*> outputs;
-  std::vector<Node*> outGates;
+  std::vector<Node*> out_gates;
   std::vector<Node*> gates;
-  std::vector<Node*> lockGates;
+  std::vector<Node*> lock_gates;
 
   NodeMap() { }
   ~NodeMap() {
@@ -71,7 +71,7 @@ class NodeMap {
    * @param name Name of the node
    * @return Node* Pointer to the node, or `nullptr` if not found
    */
-  inline Node* getNode(const std::string& name) {
+  inline Node* get_node(const std::string& name) {
     if (map.find(name) == map.end()) return nullptr;
     return map[name];
   }
@@ -80,7 +80,7 @@ class NodeMap {
    * 
    * @param node Pointer to `Node` object
    */
-  inline void addNode(Node* node) {
+  inline void add_node(Node* node) {
     map[node->name] = node;
     switch (node->type) {
       case GateType::INPUT:
@@ -88,11 +88,11 @@ class NodeMap {
         break;
       case GateType::OUTPUT:
         outputs.push_back(node);
-        outGates.push_back(node);
+        out_gates.push_back(node);
         break;
       #define _(x, y, z, w) \
       case GateType::y: \
-      if (node->isLock) lockGates.push_back(node); \
+      if (node->is_lock) lock_gates.push_back(node); \
       else gates.push_back(node); \
       break;
       foreach_gate_type_no_in_out
@@ -106,7 +106,7 @@ class NodeMap {
    * @param node Node to be locked
    * @param key Key bit
    */
-  void lockNode(Node* node, bool key);
+  void lock_node(Node* node, bool key);
   /**
    * @brief Load node data from a file
    * 
