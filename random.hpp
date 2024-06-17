@@ -58,6 +58,7 @@ void lock_by_percentage(core::NodeMap& map, float percentage) {
   choice.insert(choice.end(), map.inputs.begin(), map.inputs.end());
   choice.insert(choice.end(), map.outputs.begin(), map.outputs.end());
   choice.insert(choice.end(), map.gates.begin(), map.gates.end());
+  std::random_shuffle(choice.begin(), choice.end());
   // this conversion is not perfect, but should be good enough
   std::size_t nBits = (std::size_t)std::ceil(choice.size() * percentage);
   RLL::_lock(map, choice, nBits);
