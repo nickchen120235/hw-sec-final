@@ -94,8 +94,8 @@ class Node {
 };
 
 class NodeMap {
-  std::unordered_map<std::string, Node*> map;
   public:
+  std::unordered_map<std::string, Node*> map;
   std::vector<Node*> inputs;
   std::vector<Node*> outputs;
   std::vector<Node*> out_gates;
