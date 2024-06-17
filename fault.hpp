@@ -20,6 +20,12 @@ class Sim {
       _values[node.second] = FLL_UNKNOWN;
     }
   };
+  /**
+   * @brief Set the simulation input
+   * 
+   * @param values vector of input values
+   * @throw `std::invalid_argument` if size of `values` does not match the number of inputs
+   */
   void set_input(std::vector<FLL_Node_Value>& values) {
     if (values.size() != _node_map.inputs.size()) {
       throw std::invalid_argument("Input size mismatch");
@@ -28,6 +34,11 @@ class Sim {
       _values[_node_map.inputs[i]] = values[i];
     }
   }
+  /**
+   * @brief Run the simulation
+   * 
+   * @throw `std::runtime_error` if any of the input is not set
+   */
   void run();
 };
 

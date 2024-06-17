@@ -50,9 +50,13 @@ void Sim::run_node(core::Node* node) {
 }
 
 void Sim::run() {
-  std::stack<core::Node*> s;
+  // do sanity check before starting simulation
+  if (std::any_of(this->_node_map.inputs.begin(), this->_node_map.inputs.end(), [this](core::Node* n) { return this->_values[n] == FLL_UNKNOWN; })) {
+    throw std::runtime_error("Circuit has unknown inputs");
+  }
 
   // initialize DFS
+  std::stack<core::Node*> s;
   for (const auto& output: this->_node_map.outputs)
     s.push(output);
 
