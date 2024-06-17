@@ -82,8 +82,7 @@ void Sim::run() {
 
 void FaultImpactAnalysis::run() {
   std::srand(time(nullptr));
-  unsigned long iteration = std::min((unsigned long)1000, (unsigned long)std::exp2(this->_node_map.inputs.size()));
-  for (unsigned long i = 0; i < iteration; ++i) {
+  for (unsigned long i = 0; i < 1000; ++i) {
     // prepare input
     SimulationValues inputs(this->_node_map.inputs.size());
     for (unsigned long j = 0; j < this->_node_map.inputs.size(); ++j) {
