@@ -1,5 +1,6 @@
 #pragma once
 #include "parser.hpp"
+#include <tuple>
 
 namespace FLL {
 
@@ -9,11 +10,13 @@ typedef enum _FLL_Node_Value {
   FLL_TRUE = 1
 } FLL_Node_Value;
 
+typedef std::vector<FLL_Node_Value> SimulationValues;
 class Sim {
   std::unordered_map<core::Node*, FLL_Node_Value> _values;
   const core::NodeMap& _node_map;
-  
+  core::Node* _fault_node = nullptr;
   void run_node(core::Node* node);
+  
   public:
   Sim(const core::NodeMap& node_map) : _node_map(node_map) {
     for (const auto& node : node_map.map) {
@@ -26,7 +29,7 @@ class Sim {
    * @param values vector of input values
    * @throw `std::invalid_argument` if size of `values` does not match the number of inputs
    */
-  void set_input(std::vector<FLL_Node_Value>& values) {
+  void set_input(SimulationValues& values) {
     if (values.size() != _node_map.inputs.size()) {
       throw std::invalid_argument("Input size mismatch");
     }
@@ -35,11 +38,58 @@ class Sim {
     }
   }
   /**
+   * @brief Set the fault node
+   * 
+   * @param fault_node pointer to the node with stuck-at fault
+   */
+  void set_fault(core::Node* fault_node, FLL_Node_Value value) {
+    _fault_node = fault_node;
+    _values[_fault_node] = value;
+  }
+  /**
+   * @brief Get the fault node
+   * 
+   * @return `core::Node*` pointer to the node with stuck-at fault
+   */
+  core::Node* get_fault() {
+    return _fault_node;
+  }
+  /**
+   * @brief Get simulation values
+   * 
+   * @return `std::unordered_map<core::Node*, FLL_Node_Value>&` simulation values
+   */
+  std::unordered_map<core::Node*, FLL_Node_Value>& get_values() {
+    return _values;
+  }
+  /**
    * @brief Run the simulation
    * 
    * @throw `std::runtime_error` if any of the input is not set
    */
   void run();
+};
+
+// (NoP0, NoO0, NoP1, NoO1)
+typedef std::tuple<unsigned long, unsigned long, unsigned long, unsigned long> FaultImpactValueTuple;
+class FaultImpactAnalysis {
+  std::unordered_map<core::Node*, FaultImpactValueTuple> _fault_impact;
+  std::unordered_map<core::Node*, unsigned long> _res;
+  const core::NodeMap& _node_map;
+
+  public:
+  FaultImpactAnalysis(const core::NodeMap& node_map) : _node_map(node_map) {
+    for (const auto& node : node_map.map) {
+      _fault_impact[node.second] = std::make_tuple(0, 0, 0, 0);
+      _res[node.second] = 0;
+    }
+  };
+  void run();
+  void show() {
+    for (const auto& entry: _res) {
+      std::cout << entry.first->name << ": " << entry.second << std::endl;
+    }
+  }
 };
 
 }

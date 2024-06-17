@@ -2,6 +2,7 @@
 #include <stack>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 
 using core::GateType;
 
@@ -10,6 +11,7 @@ namespace FLL {
 void Sim::run_node(core::Node* node) {
   // std::cout << "Running node " << node->name << std::endl;
   if (node->inputs.size() == 0) return;
+  if (node == this->_fault_node) return;
   if (std::any_of(node->inputs.begin(), node->inputs.end(), [node, this](core::Node* n) { return this->_values[n] == FLL_UNKNOWN; })) {
     this->_values[node] = FLL_UNKNOWN;
     return;
@@ -75,6 +77,81 @@ void Sim::run() {
         }
       }
     }
+  }
+}
+
+void FaultImpactAnalysis::run() {
+  std::srand(time(nullptr));
+  unsigned long iteration = std::min((unsigned long)1000, (unsigned long)std::exp2(this->_node_map.inputs.size()));
+  for (unsigned long i = 0; i < iteration; ++i) {
+    // prepare input
+    SimulationValues inputs(this->_node_map.inputs.size());
+    for (unsigned long j = 0; j < this->_node_map.inputs.size(); ++j) {
+      inputs[j] = std::rand() % 2 == 1 ? FLL_TRUE : FLL_FALSE;
+    }
+
+    // run simulation without fault
+    Sim orig(this->_node_map);
+    orig.set_input(inputs);
+    orig.run();
+    SimulationValues orig_outputs(this->_node_map.outputs.size());
+    for (const auto& output: this->_node_map.outputs) {
+      orig_outputs.push_back(orig.get_values()[output]);
+    }
+    // for (const auto& output: orig_outputs) {
+    //   std::cout << output << " ";
+    // }
+    // std::cout << std::endl;
+    for (const auto& map_entry: this->_node_map.map) {
+      unsigned long nop0, noo0, nop1, noo1;
+      std::tie(nop0, noo0, nop1, noo1) = this->_fault_impact[map_entry.second];
+      // run simulation with stuck at 0
+      Sim fault0(this->_node_map);
+      fault0.set_input(inputs);
+      fault0.set_fault(map_entry.second, FLL_FALSE);
+      fault0.run();
+      SimulationValues fault0_outputs(this->_node_map.outputs.size());
+      for (const auto& output: this->_node_map.outputs) {
+        fault0_outputs.push_back(fault0.get_values()[output]);
+      }
+      // for (const auto& output: fault0_outputs) {
+      //   std::cout << output << " ";
+      // }
+      // std::cout << std::endl;
+      // run simulation with stuck at 1
+      Sim fault1(this->_node_map);
+      fault1.set_input(inputs);
+      fault1.set_fault(map_entry.second, FLL_TRUE);
+      fault1.run();
+      SimulationValues fault1_outputs(this->_node_map.outputs.size());
+      for (const auto& output: this->_node_map.outputs) {
+        fault1_outputs.push_back(fault1.get_values()[output]);
+      }
+      // for (const auto& output: fault1_outputs) {
+      //   std::cout << output << " ";
+      // }
+      // std::cout << std::endl;
+      // calculate fault impact
+      SimulationValues diff0(this->_node_map.outputs.size());
+      SimulationValues diff1(this->_node_map.outputs.size());
+      auto it0 = std::set_difference(orig_outputs.begin(), orig_outputs.end(), fault0_outputs.begin(), fault0_outputs.end(), diff0.begin());
+      auto it1 = std::set_difference(orig_outputs.begin(), orig_outputs.end(), fault1_outputs.begin(), fault1_outputs.end(), diff1.begin());
+      diff0.resize(it0 - diff0.begin());
+      diff1.resize(it1 - diff1.begin());
+      // std::cout << "diff0: " << diff0.size() << " diff1: " << diff1.size() << std::endl;
+      if (diff0.size() > 0) {
+        nop0 += 1; noo0 += diff0.size();
+      }
+      if (diff1.size() > 0) {
+        nop1 += 1; noo1 += diff1.size();
+      }
+      this->_fault_impact[map_entry.second] = std::make_tuple(nop0, noo0, nop1, noo1);
+    }
+  }
+  for (const auto& entry: this->_fault_impact) {
+    unsigned long nop0, noo0, nop1, noo1;
+    std::tie(nop0, noo0, nop1, noo1) = entry.second;
+    this->_res[entry.first] = nop0 * noo0 + nop1 * noo1;
   }
 }
 
