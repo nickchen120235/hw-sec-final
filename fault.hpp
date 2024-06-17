@@ -72,16 +72,16 @@ class Sim {
 
 // (NoP0, NoO0, NoP1, NoO1)
 typedef std::tuple<unsigned long, unsigned long, unsigned long, unsigned long> FaultImpactValueTuple;
+typedef std::pair<core::Node*, unsigned long> FaultImpactResultValuePair;
 class FaultImpactAnalysis {
   std::unordered_map<core::Node*, FaultImpactValueTuple> _fault_impact;
-  std::unordered_map<core::Node*, unsigned long> _res;
+  std::vector<FaultImpactResultValuePair> _res;
   const core::NodeMap& _node_map;
 
   public:
   FaultImpactAnalysis(const core::NodeMap& node_map) : _node_map(node_map) {
     for (const auto& node : node_map.map) {
       _fault_impact[node.second] = std::make_tuple(0, 0, 0, 0);
-      _res[node.second] = 0;
     }
   };
   void run();

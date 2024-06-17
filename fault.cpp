@@ -150,12 +150,17 @@ void FaultImpactAnalysis::run() {
       this->_fault_impact[map_entry.second] = std::make_tuple(nop0, noo0, nop1, noo1);
     }
   }
+  std::cout << std::endl;
+  std::cout << "Calulating fault impact" << std::endl;
   for (const auto& entry: this->_fault_impact) {
     unsigned long nop0, noo0, nop1, noo1;
     std::tie(nop0, noo0, nop1, noo1) = entry.second;
-    this->_res[entry.first] = nop0 * noo0 + nop1 * noo1;
+    this->_res.push_back(std::make_pair(entry.first, nop0 * noo0 + nop1 * noo1));
   }
-  std::cout << std::endl;
+  std::cout << "Sorting results" << std::endl;
+  std::sort(this->_res.begin(), this->_res.end(), [](const FaultImpactResultValuePair& a, const FaultImpactResultValuePair& b) {
+    return a.second > b.second;
+  });
   std::cout << "Done." << std::endl;
 }
 
