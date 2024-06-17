@@ -69,9 +69,9 @@ void NodeMap::lock_node(Node* node, bool key) {
     if (invert) node->invert();
   }
   // replace the original node with the lock node
-  for (auto&& gate: this->gates) {
-    if (gate->is_lock) continue;
-    std::replace_if(gate->inputs.begin(), gate->inputs.end(), [&node](Node* n){ return n == node; }, lock);
+  for (auto&& gate: this->map) {
+    if (gate.second->is_lock) continue;
+    std::replace_if(gate.second->inputs.begin(), gate.second->inputs.end(), [&node](Node* n){ return n == node; }, lock);
   }
 }
 
@@ -116,6 +116,7 @@ void NodeMap::load(const std::string& filename, bool verbose) {
         node = new Node();
         node->name = name;
         node->is_output = false;
+        node->is_lock = false;
         isNewNode = true;
       }
       if (0);
@@ -123,7 +124,7 @@ void NodeMap::load(const std::string& filename, bool verbose) {
         verbose && std::cout << "Type: " << z << std::endl; \
         node->type = GateType::y; \
       }
-      foreach_gate_type
+      foreach_gate_type_no_in_out
       #undef _
       if (isNewNode) this->add_node(node);
       std::stringstream ss(line.substr(line.find('(') + 1, line.find(')') - line.find('(') - 1));
