@@ -81,8 +81,11 @@ void Sim::run() {
 }
 
 void FaultImpactAnalysis::run() {
+  std::cout << "Running fault impact analysis" << std::endl;
   std::srand(time(nullptr));
   for (unsigned long i = 0; i < 1000; ++i) {
+    std::cout << "\rIteration: " << i + 1 << " / 1000";
+    std::cout.flush();
     // prepare input
     SimulationValues inputs(this->_node_map.inputs.size());
     for (unsigned long j = 0; j < this->_node_map.inputs.size(); ++j) {
@@ -152,6 +155,8 @@ void FaultImpactAnalysis::run() {
     std::tie(nop0, noo0, nop1, noo1) = entry.second;
     this->_res[entry.first] = nop0 * noo0 + nop1 * noo1;
   }
+  std::cout << std::endl;
+  std::cout << "Done." << std::endl;
 }
 
 }
