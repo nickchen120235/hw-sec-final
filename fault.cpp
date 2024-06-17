@@ -164,4 +164,46 @@ void FaultImpactAnalysis::run() {
   std::cout << "Done." << std::endl;
 }
 
+void lock_n_gates(core::NodeMap& map, std::size_t keyBits) {
+  std::cout << "Locking using Fault Analysis-Based Logic Locking" << std::endl;
+  // prepare key
+  std::srand(time(nullptr));
+  std::size_t nBits = std::min(keyBits, map.map.size());
+  if (nBits != keyBits) {
+    std::cerr << "Warning keyBits is larger than the number of lockable nodes." << std::endl;
+  }
+  std::vector<bool> key(nBits);
+  std::generate(key.begin(), key.end(), []() { return std::rand() % 2; });
+  std::cout << "Key: ";
+  for (const auto& bit : key) {
+    std::cout << (bit ? "1" : "0");
+  }
+  std::cout << std::endl;
+  // lock nodes
+  for (const auto& bit: key) {
+    // run fault impact analysis
+    FaultImpactAnalysis fia(map);
+    fia.run();
+    core::Node* node_to_lock = nullptr;
+    for (const auto& entry: fia.get_res()) {
+      if (entry.first->has_locked) continue;
+      if (entry.first->is_lock) continue;
+      if (entry.first->is_key_input) continue;
+      node_to_lock = entry.first;
+      break;
+    }
+    std::cout << "Picked " << node_to_lock->name << std::endl;
+    map.lock_node(node_to_lock, bit);
+  }
+}
+
+void lock_by_percentage(core::NodeMap& map, float percentage) {
+  if (percentage < 0.0 || percentage > 1.0) {
+    throw std::invalid_argument("percentage must be between 0.0 and 1.0");
+  }
+  // this conversion is not perfect, but should be good enough
+  std::size_t nBits = (std::size_t)std::ceil(map.map.size() * percentage);
+  lock_n_gates(map, nBits);
+}
+
 }

@@ -36,6 +36,7 @@ void NodeMap::lock_node(Node* node, bool key) {
   Node* keyInput = new Node(std::string("keyinput") + std::to_string(this->lock_gates.size()), GateType::INPUT);
   keyInput->is_output = false;
   keyInput->is_lock = false;
+  keyInput->is_key_input = true;
   this->add_node(keyInput);
   /**
    * create the lock gate
@@ -68,11 +69,16 @@ void NodeMap::lock_node(Node* node, bool key) {
     lock->inputs.push_back(keyInput);
     if (invert) node->invert();
   }
+  // if node is an output, replace the original node with the lock node
+  if (node->is_output) {
+    std::replace_if(this->outputs.begin(), this->outputs.end(), [&node](Node* n){ return n == node; }, lock);
+  }
   // replace the original node with the lock node
   for (auto&& gate: this->map) {
     if (gate.second->is_lock) continue;
     std::replace_if(gate.second->inputs.begin(), gate.second->inputs.end(), [&node](Node* n){ return n == node; }, lock);
   }
+  node->has_locked = true;
 }
 
 void NodeMap::load(const std::string& filename, bool verbose) {

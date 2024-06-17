@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include <tuple>
 
+// Fault Analysis-Based Logic Locking
 namespace FLL {
 
 typedef enum _FLL_Node_Value {
@@ -34,6 +35,7 @@ class Sim {
       throw std::invalid_argument("Input size mismatch");
     }
     for (size_t i = 0; i < _node_map.inputs.size(); ++i) {
+      // std::cout << "Setting input " << _node_map.inputs[i]->name << " to " << values[i] << std::endl;
       _values[_node_map.inputs[i]] = values[i];
     }
   }
@@ -86,10 +88,29 @@ class FaultImpactAnalysis {
   };
   void run();
   void show() {
-    for (const auto& entry: _res) {
-      std::cout << entry.first->name << ": " << entry.second << std::endl;
+    for (const auto& entry: _fault_impact) {
+      std::cout << entry.first->name << ": " << std::get<0>(entry.second) << ", " << std::get<1>(entry.second) << ", " << std::get<2>(entry.second) << ", " << std::get<3>(entry.second) << std::endl;
     }
   }
+  std::vector<FaultImpactResultValuePair>& get_res() {
+    return _res;
+  }
 };
+
+/**
+ * @brief Lock the circuit with `keyBits` bits
+ * 
+ * @param map Loaded circuit
+ * @param keyBits Number of bits of the key
+ */
+void lock_n_gates(core::NodeMap& map, std::size_t keyBits);
+
+/**
+ * @brief Lock the circuit by percentage
+ * 
+ * @param map Loaded circuit
+ * @param percentage Percentage of lockable nodes
+ */
+void lock_by_percentage(core::NodeMap& map, float percentage);
 
 }
