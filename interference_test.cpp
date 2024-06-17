@@ -9,5 +9,7 @@ int main(int argc, char* argv[]) {
 
   SLL Locker = SLL(map);
 
+  Locker.pre_initialize();
+
   return 0;
 }

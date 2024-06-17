@@ -55,7 +55,7 @@ void SLL::__cut_point(std::unordered_set<SLL_Node*>& graph, SLL_Node* node, int&
   }
 }
 
-void SLL::dominate_gate(SLL_Node* node) {
+void SLL::__find_dominate_gate(SLL_Node* node) {
 
   std::unordered_set<SLL_Node*> sub_graph;
 
@@ -81,19 +81,44 @@ void SLL::dominate_gate(SLL_Node* node) {
       }
     }
   }
+
+  // Next find dominate gates
+
+  std::unordered_map<SLL_Node*, int> d;
+  std::unordered_map<SLL_Node*, int> low;
+  std::unordered_map<SLL_Node*, SLL_Node*> parent;
+  std::unordered_map<SLL_Node*, bool> is_cut;
+
+  int time = 0;
+
+  for (SLL_Node* n : sub_graph) {
+    d[n] = 0;
+    low[n] = 0;
+    parent[n] = nullptr;
+    is_cut[n] = false;
+  }
+
+  __cut_point(sub_graph, node, time, d, low, parent, is_cut);
+
+  for (SLL_Node* n : sub_graph) {
+    if (is_cut[n]) {
+      node->dominates.push_back(n);
+    }
+  }
+}
+
+void SLL::find_dominate_gate() {
+
+  for (SLL_Node* n : this->nodes) {
+    __find_dominate_gate(n);
+  }
 }
 
 SLL::SLL(core::NodeMap& node_map) {
+
   final_output.name = "FinalOutput";
   final_output.type = core::GateType::BUF;
   create_node(&final_output);
-
-  // for (std::pair<std::string, core::Node*> p : node_map.map) {
-  //   // if (p.second->name == "G371gat") {
-  //   //   std::cout << "WTF";
-  //   // }
-  //   create_node(p.second);
-  // }
 
   for (core::Node* p : node_map.inputs) {
     create_node(p);
@@ -107,8 +132,8 @@ SLL::SLL(core::NodeMap& node_map) {
     create_node(p);
   }
 
-  for (std::pair<core::Node*, SLL_Node> n : this->node_map) {
-    if (node_map.map.find(n.second.node->name) == node_map.map.end() && n.second.node->name != "FinalOutput") {
+  for (SLL_Node* n : this->nodes) {
+    if (node_map.map.find(n->node->name) == node_map.map.end() && n->node->name != "FinalOutput") {
       assert(false);
     }
   }
@@ -178,22 +203,47 @@ SLL::SLL(core::NodeMap& node_map) {
 
 void SLL::create_node(core::Node* node) {
 
-
   if (node_map.find(node) == node_map.end()) { // if current node not found
     node_map[node] = SLL_Node(node);           // create one
+    this->nodes.push_back(&node_map[node]);
   }
 
   for (core::Node* next : node->outputs) {
     if (node_map.find(next) == node_map.end()) { // if next node not found
       node_map[next] = SLL_Node(next);           // create one
+      this->nodes.push_back(&node_map[next]);
     }
 
     node_map[node].outputs.push_back(&node_map[next]);
     node_map[next].inputs.push_back(&node_map[node]);
+
+    if (!(node->is_output || node->type == core::GateType::INPUT)) {
+      node_map[next].input_gates++;
+    }
   }
 
   if (node->is_output) {
     node_map[node].outputs.push_back(&node_map[&final_output]);
     node_map[&final_output].inputs.push_back(&node_map[node]);
   }
+}
+
+void SLL::calculate_converge() {
+
+  for (SLL_Node* node : this->nodes) {
+
+    if (!node->node->is_output) {
+      for (SLL_Node* next : node->outputs) {
+        node->converge = next->input_gates - 1;
+      }
+    }
+
+    std::cout << node->node->name << " converge: " << node->converge << std::endl;
+  }
+}
+
+void SLL::pre_initialize() {
+
+  calculate_converge();
+  find_dominate_gate();
 }

@@ -18,11 +18,18 @@ private:
 
     int rank = 0;
 
+    std::vector<SLL_Node*> dominates;
+
     std::vector<SLL_Node*> outputs;
     std::vector<SLL_Node*> inputs;
+
+    bool processed = false;
+    int input_gates = 0;
+    int converge = 0;
   };
 
   std::unordered_map<core::Node*, SLL_Node> node_map;
+  std::vector<SLL_Node*> nodes;
 
   core::Node final_output;
 
@@ -30,12 +37,18 @@ private:
                    std::unordered_map<SLL_Node*, int>& d, std::unordered_map<SLL_Node*, int>& low,
                    std::unordered_map<SLL_Node*, SLL_Node*>& parent, std::unordered_map<SLL_Node*, bool>& is_cut);
 
-  void dominate_gate(SLL_Node* node);
+  void __find_dominate_gate(SLL_Node* node);
+
+  void create_node(core::Node* node);
+
+  void calculate_converge();
+
+  void find_dominate_gate();
 
 public:
   SLL(core::NodeMap& node_map);
 
-  void create_node(core::Node* node);
+  void pre_initialize();
 
   void Lock(core::NodeMap& node_map);
 };
