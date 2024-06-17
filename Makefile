@@ -1,6 +1,6 @@
 .PHONY: main parser clean
 
-CXXFLAGS=--std=c++11 -Wall -Wextra
+CXXFLAGS=--std=c++11 -Wall -Wextra -g
 
 main: parser.o main.cpp
 	g++ $(CXXFLAGS) -o $@ $^ 
