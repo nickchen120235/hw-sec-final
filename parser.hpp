@@ -46,6 +46,10 @@ class Node {
   bool is_output;
   // Is lock node
   bool is_lock;
+  // Is key input
+  bool is_key_input;
+  // Has been locked by someone else
+  bool has_locked;
   // Input nodes of the node if any
   std::vector<Node*> inputs;
   // Output nodes of the node if any
@@ -57,7 +61,9 @@ class Node {
     this->name = name;
     this->type = type;
     this->is_output = false;
+    this->is_key_input = false;
     this->is_lock = false;
+    this->has_locked = false;
     this->inputs.clear();
   }
 
@@ -94,8 +100,8 @@ class Node {
 };
 
 class NodeMap {
-  std::unordered_map<std::string, Node*> map;
   public:
+  std::unordered_map<std::string, Node*> map;
   std::vector<Node*> inputs;
   std::vector<Node*> outputs;
   std::vector<Node*> out_gates;
