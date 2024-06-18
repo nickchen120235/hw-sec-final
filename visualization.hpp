@@ -18,7 +18,7 @@ std::string get_node_expression(const core::Node* node) {
   }
 
   if (node->type == core::GateType::BUF) {
-    std::cout << node->inputs[0]->name << ": " << std::string("!(" + node->inputs[0]->name + ")") << std::endl;
+    // std::cout << node->inputs[0]->name << ": " << std::string("!(" + node->inputs[0]->name + ")") << std::endl;
     return std::string(get_node_expression(node->inputs[0]));
   }
 
