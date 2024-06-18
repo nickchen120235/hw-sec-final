@@ -33,9 +33,10 @@ void NodeMap::lock_node(Node* node, bool key) {
   if (node->is_lock)
     throw std::runtime_error("Cannot lock a lock node");
   // create key input node
-  Node* keyInput = new Node(std::string("keyinput") + std::to_string(this->lock_gates.size()), GateType::INPUT);
+  Node* keyInput = new Node(std::string("keyinput") + std::to_string(this->_lock_gates.size()), GateType::INPUT);
   keyInput->is_output = false;
   keyInput->is_lock = false;
+  keyInput->is_key_input = true;
   this->add_node(keyInput);
   /**
    * create the lock gate
@@ -68,11 +69,16 @@ void NodeMap::lock_node(Node* node, bool key) {
     lock->inputs.push_back(keyInput);
     if (invert) node->invert();
   }
+  // if node is an output, replace the original node with the lock node
+  if (node->is_output) {
+    std::replace_if(this->outputs.begin(), this->outputs.end(), [&node](Node* n){ return n == node; }, lock);
+  }
   // replace the original node with the lock node
   for (auto&& gate: this->map) {
     if (gate.second->is_lock) continue;
     std::replace_if(gate.second->inputs.begin(), gate.second->inputs.end(), [&node](Node* n){ return n == node; }, lock);
   }
+  node->has_locked = true;
 }
 
 void NodeMap::load(const std::string& filename, bool verbose) {
@@ -135,12 +141,14 @@ void NodeMap::load(const std::string& filename, bool verbose) {
         Node* inputNode = this->get_node(input);
         if (inputNode != nullptr) {
           verbose && std::cout << "Input: " << input << std::endl;
-          node->inputs.push_back(inputNode);
-          inputNode->outputs.push_back(node);
         }
         else {
-          std::cerr << "Encountered unknown input: " << input << std::endl;
+          inputNode = new Node(input, GateType::OUTPUT); // using OUTPUT as a dummy
+          node->is_output = false;
+          node->is_lock = false;
         }
+        node->inputs.push_back(inputNode);
+        inputNode->outputs.push_back(node);
       }
     }
     else {
@@ -182,39 +190,11 @@ void NodeMap::save(const std::string& filename, bool verbose) {
         break;
     }
   }
-  for (const auto& node: this->out_gates) {
-    std::string logicInputs;
-    for (const auto& input: node->inputs) logicInputs += input->name + ", ";
-    // remove trailing comma
-    logicInputs.pop_back(); logicInputs.pop_back();
-    switch (node->type) {
-      #define _(x, y, z, w) case GateType::y: file << node->name << " = " << z << "(" << logicInputs << ")" << std::endl; break;
-      foreach_gate_type_no_in_out
-      #undef _
-      default:
-        file << node->name << " = UNKNOWN(" << logicInputs << ")" << std::endl;
-        break;
-    }
-  }
   file << std::endl;
-  for (const auto& node: this->lock_gates) {
-    std::string logicInputs;
-    for (const auto& input: node->inputs) logicInputs += input->name + ", ";
-    // remove trailing comma
-    logicInputs.pop_back(); logicInputs.pop_back();
-    switch (node->type) {
-      #define _(x, y, z, w) case GateType::y: file << node->name << " = " << z << "(" << logicInputs << ")" << std::endl; break;
-      foreach_gate_type_no_in_out
-      #undef _
-      default:
-        file << node->name << " = UNKNOWN(" << logicInputs << ")" << std::endl;
-        break;
-    }
-  }
   file.close();
   std::cout << "Done. Saved " << this->inputs.size() << " inputs, "
             << this->outputs.size() << " outputs, and "
-            << this->gates.size() + this->lock_gates.size() << " intermediate gates." << std::endl;
+            << this->gates.size() << " intermediate gates." << std::endl;
 }
 
 void NodeMap::show() {
