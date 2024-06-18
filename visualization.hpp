@@ -64,7 +64,7 @@ std::string get_node_expression(std::unordered_map<const core::Node*, std::strin
   return output;
 }
 
-void write_to_verilog_file(const core::NodeMap& node_map) {
+void write_to_verilog_file(const core::NodeMap& node_map, bool show_intermidiate_gate = false) {
 
   std::ofstream file("output.v");
 
@@ -118,13 +118,62 @@ void write_to_verilog_file(const core::NodeMap& node_map) {
 
   file << ";\n\n";
 
-  std::unordered_map<const core::Node*, std::string> dp_map;
+  if (show_intermidiate_gate) {
 
-  for (core::Node* node : node_map.outputs) {
-    file << "assign " << node->name << " = " << get_node_expression(dp_map, node) << ";\n";
+    for (const auto& node : node_map.gates) {
+      switch (node->type) {
+#define _(x, y, z, w)                                                                                                  \
+  case core::GateType::y:                                                                                              \
+    file << w;                                                                                                         \
+    break;
+        foreach_gate_type_no_in_out
+#undef _
+      }
+
+      file << "(" << node->name << ",";
+
+      for (std::size_t i = 0; i < node->inputs.size(); ++i) {
+        file << node->inputs[i]->name;
+        if (i < node->inputs.size() - 1) {
+          file << ",";
+        }
+      }
+
+      file << ");" << std::endl;
+    }
+
+    for (const auto& node : node_map.outputs) {
+      switch (node->type) {
+#define _(x, y, z, w)                                                                                                  \
+  case core::GateType::y:                                                                                              \
+    file << w;                                                                                                         \
+    break;
+        foreach_gate_type_no_in_out
+#undef _
+      }
+
+      file << "(" << node->name << ",";
+
+      for (std::size_t i = 0; i < node->inputs.size(); ++i) {
+        file << node->inputs[i]->name;
+        if (i < node->inputs.size() - 1) {
+          file << ",";
+        }
+      }
+
+      file << ");" << std::endl;
+    }
   }
+  else {
 
-  file << "\nendmodule";
+    std::unordered_map<const core::Node*, std::string> dp_map;
+
+    for (core::Node* node : node_map.outputs) {
+      file << "assign " << node->name << " = " << get_node_expression(dp_map, node) << ";\n";
+    }
+
+    file << "\nendmodule";
+  }
 
   file.close();
 }
