@@ -141,12 +141,14 @@ void NodeMap::load(const std::string& filename, bool verbose) {
         Node* inputNode = this->get_node(input);
         if (inputNode != nullptr) {
           verbose && std::cout << "Input: " << input << std::endl;
-          node->inputs.push_back(inputNode);
-          inputNode->outputs.push_back(node);
         }
         else {
-          std::cerr << "Encountered unknown input: " << input << std::endl;
+          inputNode = new Node(input, GateType::OUTPUT); // using OUTPUT as a dummy
+          node->is_output = false;
+          node->is_lock = false;
         }
+        node->inputs.push_back(inputNode);
+        inputNode->outputs.push_back(node);
       }
     }
     else {
