@@ -50,5 +50,7 @@ public:
 
   void pre_initialize();
 
+  std::vector<SLL::SLL_Node*> initialize();
+
   void Lock(core::NodeMap& node_map);
 };

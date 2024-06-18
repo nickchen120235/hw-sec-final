@@ -1,5 +1,6 @@
 #include "interference.hpp"
 
+#include <algorithm>
 #include <assert.h>
 
 SLL::SLL_Node::SLL_Node(core::Node* node) {
@@ -237,8 +238,6 @@ void SLL::calculate_converge() {
         node->converge = next->input_gates - 1;
       }
     }
-
-    std::cout << node->node->name << " converge: " << node->converge << std::endl;
   }
 }
 
@@ -246,4 +245,29 @@ void SLL::pre_initialize() {
 
   calculate_converge();
   find_dominate_gate();
+}
+
+std::vector<SLL::SLL_Node*> SLL::initialize() {
+
+  std::vector<SLL::SLL_Node*> rankList;
+
+  for (SLL_Node* n : this->nodes) {
+    if (!n->processed) {
+      rankList.push_back(n);
+      std::cout << n->node->name << " " << n->converge << std::endl;
+    }
+  }
+
+  if (rankList.size() == 0) {
+    return rankList;
+  }
+
+  std::cout << "====================" << std::endl;
+
+  std::sort(rankList.begin(), rankList.end(),
+            [](SLL::SLL_Node* a, SLL::SLL_Node* b) { return a->converge > b->converge; });
+
+  for (SLL::SLL_Node* n : rankList) {
+    std::cout << n->node->name << " " << n->converge << std::endl;
+  }
 }
