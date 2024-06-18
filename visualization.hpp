@@ -1,25 +1,33 @@
 #include "parser.hpp"
 
 #include <fstream>
+#include <map>
 #include <string>
 
 namespace Visualization {
 
-std::string get_node_expression(const core::Node* node) {
+std::string get_node_expression(std::unordered_map<const core::Node*, std::string>& dp, const core::Node* node) {
+
+  if (dp.find(node) != dp.end()) {
+    return dp[node];
+  }
 
   if (node->type == core::GateType::INPUT) {
     // std::cout << node->name << ": " << node->name << std::endl;
+    dp[node] = std::string(node->name);
     return std::string(node->name);
   }
 
   if (node->type == core::GateType::NOT) {
     // std::cout << node->inputs[0]->name << ": " << std::string("!(" + node->inputs[0]->name + ")") << std::endl;
-    return std::string("!(" + get_node_expression(node->inputs[0]) + ")");
+    dp[node] = std::string("!(" + get_node_expression(dp, node->inputs[0]) + ")");
+    return std::string("!(" + get_node_expression(dp, node->inputs[0]) + ")");
   }
 
   if (node->type == core::GateType::BUF) {
     // std::cout << node->inputs[0]->name << ": " << std::string("!(" + node->inputs[0]->name + ")") << std::endl;
-    return std::string(get_node_expression(node->inputs[0]));
+    dp[node] = std::string(get_node_expression(dp, node->inputs[0]));
+    return std::string(get_node_expression(dp, node->inputs[0]));
   }
 
   std::string output = "";
@@ -29,7 +37,7 @@ std::string get_node_expression(const core::Node* node) {
     prefix = "!(";
   }
 
-  output = get_node_expression(node->inputs[0]);
+  output = get_node_expression(dp, node->inputs[0]);
 
   for (std::size_t i = 1; i < node->inputs.size(); ++i) {
 
@@ -48,10 +56,11 @@ std::string get_node_expression(const core::Node* node) {
       std::cout << "Someting went wrong" << std::endl;
     }
 
-    output += get_node_expression(node->inputs[i]) + ")";
+    output += get_node_expression(dp, node->inputs[i]) + ")";
   }
 
   // std::cout << node->name << ": " << output << std::endl;
+  dp[node] = output;
   return output;
 }
 
@@ -109,8 +118,10 @@ void write_to_verilog_file(const core::NodeMap& node_map) {
 
   file << ";\n\n";
 
+  std::unordered_map<const core::Node*, std::string> dp_map;
+
   for (core::Node* node : node_map.outputs) {
-    file << "assign " << node->name << " = " << get_node_expression(node) << ";\n";
+    file << "assign " << node->name << " = " << get_node_expression(dp_map, node) << ";\n";
   }
 
   file << "\nendmodule";
