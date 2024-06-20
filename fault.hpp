@@ -86,7 +86,7 @@ class FaultImpactAnalysis {
       _fault_impact[node.second] = std::make_tuple(0, 0, 0, 0);
     }
   };
-  void run(u_int64_t seed);
+  void run(u_int32_t rounds, u_int64_t seed);
   void show() {
     for (const auto& entry: _fault_impact) {
       std::cout << entry.first->name << ": " << std::get<0>(entry.second) << ", " << std::get<1>(entry.second) << ", " << std::get<2>(entry.second) << ", " << std::get<3>(entry.second) << std::endl;
@@ -103,7 +103,7 @@ class FaultImpactAnalysis {
  * @param map Loaded circuit
  * @param keyBits Number of bits of the key
  */
-void lock_n_gates(core::NodeMap& map, std::size_t keyBits,u_int64_t seed);
+void lock_n_gates(core::NodeMap& map, std::size_t keyBits, u_int32_t rounds, u_int64_t seed);
 
 /**
  * @brief Lock the circuit by percentage
@@ -111,6 +111,6 @@ void lock_n_gates(core::NodeMap& map, std::size_t keyBits,u_int64_t seed);
  * @param map Loaded circuit
  * @param percentage Percentage of lockable nodes
  */
-void lock_by_percentage(core::NodeMap& map, float percentage,u_int64_t seed);
+void lock_by_percentage(core::NodeMap& map, float percentage, u_int32_t rounds, u_int64_t seed);
 
 }

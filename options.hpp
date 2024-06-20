@@ -23,7 +23,7 @@ public:
   bool show_help = false;
   int lock_bits = 0;
   float lock_percentage = 0.0;
-  int FLL_rounds = 1000;
+  u_int32_t FLL_rounds = 1000;
   u_int64_t seed = 0;
   bool seed_is_set = false;
   std::string input_file_name = "input.bench";
@@ -120,7 +120,10 @@ public:
         i_plus_1_with_check;
 
         try {
-          FLL_rounds = strtol(argv[i], 0, 10);
+          if (argv[i][0] == '-') { // ignore negative number
+            show_error_and_exit(argc, argv, i, ArgError::INVALID_INPUT);
+          }
+          FLL_rounds = strtoul(argv[i], 0, 10);
         } catch (std::invalid_argument& e) {
           show_error_and_exit(argc, argv, i, ArgError::INVALID_INPUT);
         }
