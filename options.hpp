@@ -230,6 +230,12 @@ public:
       print_help();
       exit(0);
     }
+
+    if (lock_bits == 0 && lock_percentage == 0) {
+      std::cout<< "Error: -b or -p is required" << std::endl<<std::endl;
+      print_help();
+      exit(1);
+    }
   }
 
   // clang-format off
