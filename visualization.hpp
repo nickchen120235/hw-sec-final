@@ -108,7 +108,6 @@ void write_to_verilog_file(const core::NodeMap& node_map, bool show_intermidiate
 
   file << "\n\n";
 
-
   // write input gates
   file << "input ";
 
@@ -120,7 +119,6 @@ void write_to_verilog_file(const core::NodeMap& node_map, bool show_intermidiate
   }
 
   file << ";\n\n";
-
 
   // write output gates
   file << "output ";
@@ -147,6 +145,7 @@ void write_to_verilog_file(const core::NodeMap& node_map, bool show_intermidiate
     break;
         foreach_gate_type_no_in_out
 #undef _
+            default : break;
       }
 
       file << "(" << node->name << ",";
@@ -170,6 +169,7 @@ void write_to_verilog_file(const core::NodeMap& node_map, bool show_intermidiate
     break;
         foreach_gate_type_no_in_out
 #undef _
+            default : break;
       }
 
       file << "(" << node->name << ",";
