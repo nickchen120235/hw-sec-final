@@ -139,6 +139,18 @@ void write_to_verilog_file(const core::NodeMap& node_map, std::string output_fil
     // don't reduce intermidiate gates
 
     // write intermidiate gates
+
+    file << "wire ";
+
+    for (std::size_t i = 0; i < node_map.gates.size(); ++i) {
+      file << node_map.gates[i]->name;
+      if (i < node_map.gates.size() - 1) {
+        file << ',';
+      }
+    }
+
+    file << ";\n\n";
+
     for (const auto& node : node_map.gates) {
       switch (node->type) {
 #define _(x, y, z, w)                                                                                                  \
@@ -194,9 +206,9 @@ void write_to_verilog_file(const core::NodeMap& node_map, std::string output_fil
     for (core::Node* node : node_map.outputs) {
       file << "assign " << node->name << " = " << get_node_expression(dp_map, node) << ";\n";
     }
-
-    file << "\nendmodule";
   }
+
+  file << "\nendmodule";
 
   file.close();
 }
