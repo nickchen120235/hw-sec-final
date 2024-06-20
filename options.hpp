@@ -235,11 +235,6 @@ public:
       exit(0);
     }
 
-    if (lock_bits == 0 && lock_percentage == 0) {
-      std::cout << "Error: -b or -p is required" << std::endl << std::endl;
-      print_help();
-      exit(1);
-    }
   }
 
   // clang-format off
@@ -248,17 +243,19 @@ public:
     std::cout << "Hardware Security Final Project" << std::endl;
     std::cout << "Usage: " << std::endl;
     std::cout << "  -a, --algorithm <RLL | FLL>             select Locking algorithm. (default: RLL)" << std::endl;
-    std::cout << "  -b, --lock-by-bits <N>                  REQUIRED. conflict with -p. number of bits to lock (N > 0)" << std::endl;
+    std::cout << "  -b, --lock-by-bits <N>                  conflict with -p. number of bits to lock (N > 0)" << std::endl;
     std::cout << "  -h, --help                              print help message" << std::endl;
     std::cout << "  -i, --input-file <filename>             input file name. (default: input.bench)" << std::endl;
     std::cout << "  -o, --output-file <filename>            output file name. (default: output.bench)" << std::endl;
-    std::cout << "  -p, --lock-by-percentage <N>            REQUIRED. conflict with -b. percentage to lock (0.0 < N <= 1.0)" << std::endl;
+    std::cout << "  -p, --lock-by-percentage <N>            conflict with -b. percentage to lock (0.0 < N <= 1.0)" << std::endl;
     std::cout << "  -r, --rounds <N>                        test rounds for one lock bit in FLL algorithm. (default 1000)" << std::endl;
     std::cout << "                                          This option only takes effect when algorithm is set to FLL" << std::endl;
     std::cout << "  -s, --seed <N>                          seed for random number generator. (default: time(0))" << std::endl;
     std::cout << "  -v, --visualization-file <filename>     output file name for visualization. (default: output.v)" << std::endl;
     std::cout << "      --show-intermidiate-gates           show intermidiate gates" << std::endl;
-
+    std::cout << std::endl;
+    std::cout << "Note:" << std::endl;
+    std::cout << "  Neither -b nor -p is set will disable all locking algorithms, and only generate the visualization file." << std::endl;
     std::cout << std::endl;
     std::cout << "Example:" << std::endl;
     std::cout << "  ./main -a FLL -i 1000 -s 123456 -b 10 -o output.bench -v output.v" << std::endl;

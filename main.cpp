@@ -27,13 +27,13 @@ int main(int argc, char* argv[]) {
 
     if (parser.lock_bits != 0)
       RLL::lock_n_gates(map, parser.lock_bits, seed);
-    else
+    else if(parser.lock_percentage != 0)
       RLL::lock_by_percentage(map, parser.lock_percentage, seed);
   }
   else if (parser.alg == OptionParser::Algorithm::FLL) {
     if (parser.lock_bits != 0)
       FLL::lock_n_gates(map, parser.lock_bits, parser.FLL_rounds, seed);
-    else
+    else if(parser.lock_percentage != 0)
       FLL::lock_by_percentage(map, parser.lock_percentage, parser.FLL_rounds, seed);
   }
 
