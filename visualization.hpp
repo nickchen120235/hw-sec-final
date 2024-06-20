@@ -74,12 +74,14 @@ std::string get_node_expression(std::unordered_map<const core::Node*, std::strin
   return output;
 }
 
-void write_to_verilog_file(const core::NodeMap& node_map, bool show_intermidiate_gate = false) {
+void write_to_verilog_file(const core::NodeMap& node_map, std::string output_file,
+                           bool show_intermidiate_gate = false) {
 
   // write to output.v
-  std::ofstream file("output.v");
+  std::ofstream file(output_file);
 
   if (!file.is_open()) {
+    std::cout << "Could not open output file" << output_file << std::endl;
     exit(1);
   }
 

@@ -26,6 +26,7 @@ public:
   u_int32_t FLL_rounds = 1000;
   u_int64_t seed = 0;
   bool seed_is_set = false;
+  bool show_intermidiate_gates = false;
   std::string input_file_name = "input.bench";
   std::string output_file_name = "output.bench";
   std::string visualization_file_name = "output.v";
@@ -152,6 +153,9 @@ public:
 
         visualization_file_name = argv[i];
       }
+      else if (option_cmp(argv[i], "--show-intermediate-gates")) {
+        show_intermidiate_gates = true;
+      }
       else {
         show_error_and_exit(argc, argv, i, ArgError::UNKNOW_INPUT);
       }
@@ -232,7 +236,7 @@ public:
     }
 
     if (lock_bits == 0 && lock_percentage == 0) {
-      std::cout<< "Error: -b or -p is required" << std::endl<<std::endl;
+      std::cout << "Error: -b or -p is required" << std::endl << std::endl;
       print_help();
       exit(1);
     }
@@ -253,6 +257,7 @@ public:
     std::cout << "                                          This option only takes effect when algorithm is set to FLL" << std::endl;
     std::cout << "  -s, --seed <N>                          seed for random number generator. (default: time(0))" << std::endl;
     std::cout << "  -v, --visualization-file <filename>     output file name for visualization. (default: output.v)" << std::endl;
+    std::cout << "      --show-intermidiate-gates           show intermidiate gates" << std::endl;
 
     std::cout << std::endl;
     std::cout << "Example:" << std::endl;

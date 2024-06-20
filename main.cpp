@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
   OptionParser parser;
 
   parser.parse_arguments(argc, argv);
-  
+
   core::NodeMap map = core::NodeMap();
   map.load(parser.input_file_name);
 
@@ -36,6 +36,8 @@ int main(int argc, char* argv[]) {
     else
       FLL::lock_by_percentage(map, parser.lock_percentage, parser.FLL_rounds, seed);
   }
+
+  Visualization::write_to_verilog_file(map, parser.visualization_file_name, parser.show_intermidiate_gates);
 
   map.save(parser.output_file_name);
   return 0;
