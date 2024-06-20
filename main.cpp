@@ -1,11 +1,42 @@
+#include "fault.hpp"
+#include "options.hpp"
 #include "parser.hpp"
+#include "random.hpp"
+#include "visualization.hpp"
 #include <iostream>
+#include <string>
+#include <vector>
 
 int main(int argc, char* argv[]) {
-  if (argc != 3) return 1;
+
+  // parse command line arguments
+
+  OptionParser parser;
+
+  parser.parse_arguments(argc, argv);
+  
   core::NodeMap map = core::NodeMap();
-  map.load(argv[1]);
-  map.show();
-  map.save(argv[2]);
+  map.load(parser.input_file_name);
+
+  // set seed
+
+  u_int64_t seed = parser.seed_is_set ? parser.seed : time(nullptr);
+
+  // select algorithm
+  if (parser.alg == OptionParser::Algorithm::RLL) {
+
+    if (parser.lock_bits != 0)
+      RLL::lock_n_gates(map, parser.lock_bits, seed);
+    else
+      RLL::lock_by_percentage(map, parser.lock_percentage, seed);
+  }
+  else if (parser.alg == OptionParser::Algorithm::FLL) {
+    if (parser.lock_bits != 0)
+      FLL::lock_n_gates(map, parser.lock_bits, parser.FLL_rounds, seed);
+    else
+      FLL::lock_by_percentage(map, parser.lock_percentage, parser.FLL_rounds, seed);
+  }
+
+  map.save(parser.output_file_name);
   return 0;
 }
