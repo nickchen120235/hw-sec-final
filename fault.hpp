@@ -86,7 +86,7 @@ class FaultImpactAnalysis {
       _fault_impact[node.second] = std::make_tuple(0, 0, 0, 0);
     }
   };
-  void run();
+  void run(u_int64_t seed);
   void show() {
     for (const auto& entry: _fault_impact) {
       std::cout << entry.first->name << ": " << std::get<0>(entry.second) << ", " << std::get<1>(entry.second) << ", " << std::get<2>(entry.second) << ", " << std::get<3>(entry.second) << std::endl;

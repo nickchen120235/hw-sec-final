@@ -6,10 +6,10 @@
 // Random Logic Locking
 namespace RLL {
 
-void _lock(core::NodeMap& map, std::vector<core::Node*>& choice, std::size_t keyBits) {
+void _lock(core::NodeMap& map, std::vector<core::Node*>& choice, std::size_t keyBits,u_int64_t seed = time(0)) {
   std::cout << "Locking using Random Logic Locking" << std::endl;
   // prepare key
-  std::srand(time(NULL));
+  std::srand(seed);
   std::size_t nBits = std::min(keyBits, choice.size());
   if (nBits != keyBits) {
     std::cerr << "Warning keyBits is larger than the number of lockable nodes." << std::endl;

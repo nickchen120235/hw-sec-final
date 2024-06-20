@@ -80,9 +80,9 @@ void Sim::run() {
   }
 }
 
-void FaultImpactAnalysis::run() {
+void FaultImpactAnalysis::run(u_int64_t seed = time(0)) {
   std::cout << "Running fault impact analysis" << std::endl;
-  std::srand(time(nullptr));
+  std::srand(seed);
   for (unsigned long i = 0; i < 1000; ++i) {
     std::cout << "\rIteration: " << i + 1 << " / 1000";
     std::cout.flush();
@@ -164,10 +164,10 @@ void FaultImpactAnalysis::run() {
   std::cout << "Done." << std::endl;
 }
 
-void lock_n_gates(core::NodeMap& map, std::size_t keyBits) {
+void lock_n_gates(core::NodeMap& map, std::size_t keyBits, u_int64_t seed = time(0)) {
   std::cout << "Locking using Fault Analysis-Based Logic Locking" << std::endl;
   // prepare key
-  std::srand(time(nullptr));
+  std::srand(seed);
   std::size_t nBits = std::min(keyBits, map.map.size());
   if (nBits != keyBits) {
     std::cerr << "Warning keyBits is larger than the number of lockable nodes." << std::endl;
@@ -197,13 +197,13 @@ void lock_n_gates(core::NodeMap& map, std::size_t keyBits) {
   }
 }
 
-void lock_by_percentage(core::NodeMap& map, float percentage) {
+void lock_by_percentage(core::NodeMap& map, float percentage, u_int64_t seed = time(0)) {
   if (percentage < 0.0 || percentage > 1.0) {
     throw std::invalid_argument("percentage must be between 0.0 and 1.0");
   }
   // this conversion is not perfect, but should be good enough
   std::size_t nBits = (std::size_t)std::ceil(map.map.size() * percentage);
-  lock_n_gates(map, nBits);
+  lock_n_gates(map, nBits,seed);
 }
 
 }
