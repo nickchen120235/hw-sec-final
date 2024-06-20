@@ -34,7 +34,7 @@ class Sim {
     if (values.size() != _node_map.inputs.size()) {
       throw std::invalid_argument("Input size mismatch");
     }
-    for (size_t i = 0; i < _node_map.inputs.size(); ++i) {
+    for (std::size_t i = 0; i < _node_map.inputs.size(); ++i) {
       // std::cout << "Setting input " << _node_map.inputs[i]->name << " to " << values[i] << std::endl;
       _values[_node_map.inputs[i]] = values[i];
     }
@@ -103,7 +103,7 @@ class FaultImpactAnalysis {
  * @param map Loaded circuit
  * @param keyBits Number of bits of the key
  */
-void lock_n_gates(core::NodeMap& map, std::size_t keyBits);
+void lock_n_gates(core::NodeMap& map, std::size_t keyBits,u_int64_t seed);
 
 /**
  * @brief Lock the circuit by percentage
@@ -111,6 +111,6 @@ void lock_n_gates(core::NodeMap& map, std::size_t keyBits);
  * @param map Loaded circuit
  * @param percentage Percentage of lockable nodes
  */
-void lock_by_percentage(core::NodeMap& map, float percentage);
+void lock_by_percentage(core::NodeMap& map, float percentage,u_int64_t seed);
 
 }
