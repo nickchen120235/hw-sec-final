@@ -85,7 +85,8 @@ void NodeMap::load(const std::string& filename, bool verbose) {
   std::cout << "Loading " << filename << std::endl;
   std::ifstream file(filename);
   if (!file.is_open()) {
-    throw std::runtime_error("Could not open file " + filename);
+    std::cout<< "Could not open file " + filename << std::endl;
+    exit(1);
   }
   std::string line;
   while (std::getline(file, line)) {
@@ -165,7 +166,8 @@ void NodeMap::save(const std::string& filename, bool verbose) {
   std::cout << "Saving " << filename << std::endl;
   std::ofstream file(filename);
   if (!file.is_open()) {
-    throw std::runtime_error("Could not open file " + filename);
+    std::cout<< "Could not open file " + filename << std::endl;
+    exit(1);
   }
   for (const auto& node: this->inputs) {
     verbose && std::cout << "Writing INPUT(" << node->name << ")" << std::endl;
