@@ -6,7 +6,7 @@
 // Random Logic Locking
 namespace RLL {
 
-void _lock(core::NodeMap& map, std::vector<core::Node*>& choice, std::size_t keyBits,u_int64_t seed = time(0)) {
+void _lock(core::NodeMap& map, std::vector<core::Node*>& choice, std::size_t keyBits,u_int64_t seed) {
   std::cout << "Locking using Random Logic Locking" << std::endl;
   // prepare key
   std::srand(seed);
@@ -33,13 +33,13 @@ void _lock(core::NodeMap& map, std::vector<core::Node*>& choice, std::size_t key
  * @param map Loaded circuit
  * @param keyBits Number of bits of the key
  */
-void lock_n_gates(core::NodeMap& map, std::size_t keyBits) {
+void lock_n_gates(core::NodeMap& map, std::size_t keyBits,u_int64_t seed) {
   // prepare lockable nodes
   std::vector<core::Node*> choice;
   choice.insert(choice.end(), map.inputs.begin(), map.inputs.end());
   choice.insert(choice.end(), map.gates.begin(), map.gates.end());
   std::random_shuffle(choice.begin(), choice.end());
-  RLL::_lock(map, choice, keyBits);
+  RLL::_lock(map, choice, keyBits, seed);
 }
 
 /**
@@ -48,7 +48,7 @@ void lock_n_gates(core::NodeMap& map, std::size_t keyBits) {
  * @param map Loaded circuit
  * @param percentage Percentage of lockable nodes
  */
-void lock_by_percentage(core::NodeMap& map, float percentage) {
+void lock_by_percentage(core::NodeMap& map, float percentage,u_int64_t seed) {
   if (percentage < 0.0 || percentage > 1.0) {
     throw std::invalid_argument("percentage must be between 0.0 and 1.0");
   }
@@ -59,7 +59,7 @@ void lock_by_percentage(core::NodeMap& map, float percentage) {
   std::random_shuffle(choice.begin(), choice.end());
   // this conversion is not perfect, but should be good enough
   std::size_t nBits = (std::size_t)std::ceil(choice.size() * percentage);
-  RLL::_lock(map, choice, nBits);
+  RLL::_lock(map, choice, nBits,seed);
 }
 
 }
