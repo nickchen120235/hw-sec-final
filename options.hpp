@@ -34,8 +34,8 @@ public:
 
     // clang-format off
 #define option_cmp(argv, option) strncmp(argv, option, sizeof(option)) == 0
-#define i_plus_1_with_check if (i+1 >= argc) show_error_and_exit(argc, argv, i, ArgError::MISSING_ARG); else i++;
-#define check_invalid_arg_and_exit if (argv[i][0] == '-') show_error_and_exit(argc, argv, i, ArgError::MISSING_ARG); else show_error_and_exit(argc, argv, i, ArgError::UNKNOW_INPUT);
+#define i_plus_1_with_check if (i+1 >= argc) {show_error_and_exit(argc, argv, i, ArgError::MISSING_ARG);} else {i++;};
+#define check_invalid_arg_and_exit if (argv[i][0] == '-') {show_error_and_exit(argc, argv, i - 1, ArgError::MISSING_ARG);} else {show_error_and_exit(argc, argv, i, ArgError::UNKNOW_INPUT);}
     // clang-format on
 
     for (int i = 1; i < argc; i++) {
@@ -158,9 +158,6 @@ public:
   }
 
   void show_error_and_exit(int argc, char* argv[], int current, ArgError error) {
-    if (error == MISSING_ARG) {
-      current--;
-    }
 
     for (int i = 0; i < argc; i++) {
       std::cout << argv[i] << " ";
@@ -212,11 +209,22 @@ public:
       break;
     }
 
+    std::cout << std::endl;
+
+    print_help();
+
     exit(1);
   }
 
   bool conflict_happen() {
     return (lock_bits != 0 && lock_percentage != 0) || (lock_bits == 0 && lock_percentage == 0);
+  }
+
+  void process_args() {
+    if (show_help) {
+      print_help();
+      exit(0);
+    }
   }
 
   // clang-format off
