@@ -155,6 +155,8 @@ public:
     }
 
 #undef option_cmp
+
+    process_args();
   }
 
   void show_error_and_exit(int argc, char* argv[], int current, ArgError error) {
