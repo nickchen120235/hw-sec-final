@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
       FLL::lock_by_percentage(map, parser.lock_percentage, parser.FLL_rounds, seed);
   }
 
-  Visualization::write_to_verilog_file(map, parser.visualization_file_name, parser.show_intermidiate_gates);
+  Visualization::write_to_verilog_file(map, parser.visualization_file_name, parser.show_intermediate_gates);
 
   map.save(parser.output_file_name);
   return 0;

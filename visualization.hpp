@@ -75,7 +75,7 @@ std::string get_node_expression(std::unordered_map<const core::Node*, std::strin
 }
 
 void write_to_verilog_file(const core::NodeMap& node_map, std::string output_file,
-                           bool show_intermidiate_gate = false) {
+                           bool show_intermediate_gate = false) {
 
   // write to output.v
   std::ofstream file(output_file);
@@ -134,11 +134,11 @@ void write_to_verilog_file(const core::NodeMap& node_map, std::string output_fil
 
   file << ";\n\n";
 
-  if (show_intermidiate_gate) {
+  if (show_intermediate_gate) {
 
-    // don't reduce intermidiate gates
+    // don't reduce intermediate gates
 
-    // write intermidiate gates
+    // write intermediate gates
 
     file << "wire ";
 
